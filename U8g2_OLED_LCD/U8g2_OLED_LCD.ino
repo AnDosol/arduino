@@ -67,6 +67,8 @@ void time_irq()
 
 void setup() {
   
+  MsTimer2::set(1000, time_irq);
+  MsTimer2::start();
   // put your setup code here, to run once:
   // LED GPIO SET
   for(int k =0; k <= 3; k++) pinMode(M_LED[k], OUTPUT);
@@ -113,8 +115,7 @@ void loop() {
   delay(1000);
 
 u8g2.setCursor(2, 40);
-  u8g2.print(d_buf);
- 
- u8g2.sendBuffer();
+u8g2.print(d_buf); 
+u8g2.sendBuffer();
 
 }

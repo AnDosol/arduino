@@ -34,7 +34,8 @@
 // dev printf
 #define Arduino_Mode   1
 #define Arduino_i2c_Char_LCD   2
-//#include "My_MCU_Printf_Lib_V2_5.h"
+
+#include "My_MCU_Printf_Lib_V2_5.h"
 
 struct _CNT_
 {
@@ -56,8 +57,8 @@ char d_buf[40];
 void time_irq()
 {
   // timer interrupt call 백 함수
-  (cnt -> t_loop > 200) ? cnt -> t_loop = 0,   
-                          cnt -> cnt16++,
+  (cnt -> t_loop > 1000) ? cnt -> t_loop = 0,   
+                          //cnt -> cnt16++,
                           (*fg).led_flag = 1   
                         : cnt -> t_loop++;
   if(cnt -> cnt16 > 2000) cnt ->cnt16 = 1234;    
@@ -67,7 +68,7 @@ void time_irq()
 
 void setup() {
   
-  MsTimer2::set(1000, time_irq);
+  MsTimer2::set(1, time_irq);
   MsTimer2::start();
   // put your setup code here, to run once:
   // LED GPIO SET
@@ -93,12 +94,15 @@ void setup() {
 
  // u8g2 oled
  u8g2.clearBuffer();         // clear the internal memory
- u8g2.setFont(u8g2_font_ncenB08_tr); // choose a suitable font
- u8g2.setFontDirection(0);
+ //u8g2.setFont(u8g2_font_ncenB08_tr); // choose a suitable font
+ u8g2.setFont(u8g2_font_unifont_t_korean1); // 한글 중에 지원 안되는 것이 있음
+//u8g2.setFont(u8g2_font_unifont_t_korean2); // 지원은 다 되나 용량이 커서 우노에서 쓸 수 없음
+ u8g2.setFontDirection(1); // 방향 조절
  u8g2.drawStr(0,10,"Hello World!");
  //u8g2.drawStrX2(0,10,"Hello World!");  // write something to the internal memory
  u8g2.setCursor(8, 20);
- u8g2.print("dosol"); 
+ u8g2.print("안녕하세요"); 
+ u8g2.setCursor(8, 20); 
  u8g2.sendBuffer();
 }
 
@@ -106,16 +110,20 @@ void setup() {
 
 void loop() {
   
-  sprintf(d_buf, "%d", cnt->cnt16);
-  print_xy_str(11, 0, d_buf);
-  sprintf(d_buf, "%d", (10000 - cnt->cnt16));
-  print_xy_str(11, 1, d_buf);
-  // put your main code here, to run repeatedly:
-  cnt->cnt16 > 9999 ? (cnt->cnt16 = 0) : cnt->cnt16++;
-  delay(1000);
-
-u8g2.setCursor(2, 40);
-u8g2.print(d_buf); 
-u8g2.sendBuffer();
+  if(fg->led_flag){
+    sprintf(d_buf, "%d", cnt->cnt16);
+    print_xy_str(11, 0, d_buf);
+    sprintf(d_buf, "%d", (10000 - cnt->cnt16));
+    print_xy_str(11, 1, d_buf);
+    // put your main code here, to run repeatedly:
+    cnt->cnt16 > 9999 ? (cnt->cnt16 = 0) : cnt->cnt16++;    
+    
+    u8g2.setCursor(2, 40);
+    
+    u8g2.print(d_buf); 
+    u8g2.sendBuffer();
+    fg->led_flag=0;
+  }
+  
 
 }

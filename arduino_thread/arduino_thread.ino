@@ -1,8 +1,21 @@
 #include <Arduino_FreeRTOS.h>
+#include <MsTimer2.h>
+
+void time_irq(){
+  Serial.println("tiemr 2");
+}
 
 void setup(){
+MsTimer2::set(1000, time_irq);
+MsTimer2::start();
+
   Serial.begin(115200);
   Serial.println("Setup");
+
+  DDRD |= 0x0C;
+
+  // vTaskDelay(1000 / portTICK_PERIOD_MS); 이 함수를 쓰지 않으면, 동시에 두개의 타스트가 겹칠때, 우선순위가 낮은 타스크는 실행 되지 않음,
+  //따라서 vTaskDelay 를 사용할것. 이 함수를 사용하면, 타스크가 겹쳐도 우선순위대로 동작하는것 같음
 
  /*  
   xTaskCreate() 함수가 각각의 테스크를 만드는 함수이다.
@@ -36,16 +49,18 @@ void loop(){
 static void thr1(void* pvParameters){
   while(true){
     Serial.println("Thread 1");
-    vTaskDelay(2000 / portTICK_PERIOD_MS);
-   // _delay_ms(500);
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    PORTD ^= (1<<2);
+    //_delay_ms(1000);
 
   }
 }
 
 static void thr2(void* pvParameters){
   while(true){
-    Serial.println(F("Thread 2"));
+    Serial.println("Thread 2");
     vTaskDelay(1000 / portTICK_PERIOD_MS);
-   //_delay_ms(700);
+    PORTD ^= (1<<3);
+    //_delay_ms(200);
   }
 }
